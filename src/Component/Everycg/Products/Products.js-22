@@ -1,0 +1,71 @@
+import React from 'react'
+import { Link } from 'react-router-dom';
+//import ReactPaginate from 'react-paginate';
+import topInformationimg from '../../../images/bg1.jpg'
+import LeftSiderBar from '../../SideBar/LeftSider/LeftSider'
+import categorybanner from '../../../images/category-banner.jpg'
+class featuredProducts extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            users: null
+        }
+    }
+    componentDidMount() {
+        fetch('https://dev.demo-swapithub.com/ecomm/api/products').then((Response) => {
+            Response.json().then((result) => {
+                console.warn(result.data)
+                this.setState({ users: result.data })
+            })
+        })
+    }
+    render() {
+        return (
+
+            <div className="row m-0 p-0 shop-page">
+                <LeftSiderBar />
+                <div className="col-md-10 width_int">
+                    <div className='banner-sect-category' style={{background: `url(${categorybanner})`,}}>
+                        <div className="breadcrumb"><Link to="/" >Home </Link> <span> > </span> Products</div>
+                        <h2 className="cat-title">All Products</h2>
+						<p className="content-category">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,</p>
+                    </div>
+                    <div className="row ">
+                        {
+                            this.state.users ?
+                                this.state.users.map((item
+                                    // , current_page
+                                ) =>
+                                    <div className="col-6 col-md-4 col-xl-3 mt-3">
+                                        <div className="card text-black featured_Products">
+                                            <div className='featured_Products_image'>
+                                                <img src={'https://dev.demo-swapithub.com/ecomm/' + item.image} alt={item.name} />
+                                                <div className='Shop_now'>
+                                                    <Link to={`/NewProductShop/${item.alias}`} className='Shop_now_page'>Shop Now </Link>
+                                                </div>
+                                            </div>
+                                            <div className="card-body">
+                                                <div className="text-center">
+                                                    <h5 className="card-title">{item.name}</h5>
+                                                    <p className="text-muted"
+                                                        numberOfLines={2} ellipsizeMode='end'
+                                                        dangerouslySetInnerHTML={{ __html: item.content }} ></p>
+                                                </div>
+                                            </div>
+                                            <div className='shop_price'>
+                                                <span >${item.price}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                                :
+                                null
+                        }
+
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+export default featuredProducts;

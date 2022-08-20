@@ -1,0 +1,331 @@
+import React, { useState, Component } from "react";
+import axios from 'axios'
+import LeftSiderBar from '../../../Component/SideBar/LeftSider/LeftSider'
+import { useCookies } from "react-cookie";
+import Cookies from 'universal-cookie';
+import SimpleReactValidator from "simple-react-validator";
+import loder from '../../../images/loader-orange.gif'
+import Loader from 'react-loader-spinner';
+
+const Loading = () =>
+    <div className="col-md-10 position-relative loder_imag">
+        <img src={loder} />
+
+    </div>
+export default class Checkout extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      postId: null,
+      value: '',
+      loading: true,
+    };
+        this.handleChange = this.handleChange.bind(this);
+    this.handleChange1 = this.handleChange1.bind(this);
+    this.handleChange2 = this.handleChange2.bind(this);
+    this.handleChange3 = this.handleChange3.bind(this);
+    this.handleChange4 = this.handleChange4.bind(this);
+    this.handleChange5 = this.handleChange5.bind(this);
+    this.handleChangeemail = this.handleChangeemail.bind(this);
+   }
+  
+  validator = new SimpleReactValidator({
+    messages: {
+      email: "Please provide correct email @ address ",
+      required: "This field is required",
+    }
+
+  });
+
+  state = {
+    email: "", first_name: "", last_name: "", address1: "", address2: "", country: "",
+    phone: "", postcode: "", company: "", comment: "", sessionid: "", errorMessage: ''
+  };
+
+  handleSubmit = e => {
+    e.preventDefault();
+    e.preventDefault();
+
+    let email = this.state.email;
+    let first_name = this.state.first_name;
+    let last_name = this.state.last_name;
+    let address1 = this.state.address1;
+    let address2 = this.state.address1;
+    let country = this.state.country;
+    let phone = this.state.phone;
+    let postcode = this.state.postcode;
+    let company = this.state.company;
+    let sessionid = this.state.sessionid;
+    let comment = this.state.comment;
+
+    if (localStorage.getItem("currentUser")) {
+      if (this.validator.allValid()) {
+        let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+        const prod = JSON.stringify({
+          email: email, first_name: first_name, last_name: last_name,
+          address1: address1, address2: address2,
+          country: country, phone: phone, postcode: postcode, company: company,
+          comment: comment
+        });
+        const headers = {
+          "Content-Type": 'application/json',
+          "Authorization": `Bearer ${tokend}`
+        };
+        axios.post('https://dev.demo-swapithub.com/ecomm/api/order_create', prod, { headers })
+          .then((response) => {
+
+            if (response.status === 200) {
+              const orderIds = response.data.order.orderID
+              const ordertotal = response.data.total
+              console.log('response', response.data.order.orderID);
+              let cookiesset = localStorage.setItem('orderIds', JSON.stringify(orderIds));
+              let tota = localStorage.setItem('totalorder', JSON.stringify(ordertotal));
+              window.location = '/payment';
+
+            }
+          })
+          .catch((error) => {
+            if (error.response) {
+			if(error.response.status ===  409){
+				  // alert(error.response.data.msg);				 
+              this.setState({ errorMessage: error.response.data.msg })
+			  }
+              console.log(error.response.data.msg);
+
+            }
+          });
+      } else {
+        this.validator.showMessages();
+        this.forceUpdate();
+      }
+    }
+
+    else {
+      if (this.validator.allValid()) {
+        let cookiid = localStorage.getItem('cookieid');
+        const prod = JSON.stringify({
+          email: email, first_name: first_name, last_name: last_name,
+          address1: address1, address2: address2,
+          country: country, phone: phone, postcode: postcode, company: company,
+          sessionid: cookiid, comment: comment
+        });
+        const headers = {
+          "Content-Type": 'application/json'
+        };
+        axios.post('https://dev.demo-swapithub.com/ecomm/api/create_order', prod, { headers })
+          .then((response) => {
+
+            if (response.status === 200) {
+              const orderIds = response.data.order.orderID
+              const ordertotal = response.data.total
+              console.log('response', response.data.order.orderID);
+              let cookiesset = localStorage.setItem('orderIds', JSON.stringify(orderIds));
+              let tota = localStorage.setItem('totalorder', JSON.stringify(ordertotal));
+              window.location = '/payment';
+
+            }
+          }).catch((error) => {
+            if (error.response) {
+				 if(error.response.status ===  409){
+				   alert(error.response.data.msg);
+				 
+              this.setState({ errorMessage: error.response.data.msg })
+			  }
+              console.log(error.response.data.msg);
+
+            }
+          });
+      } else {
+        this.validator.showMessages();
+        this.forceUpdate();
+      }
+    }
+
+  };
+  componentDidMount() {
+    this.isLoading = setTimeout(() => { this.setState({ loading: false }) }, 2300);
+	   if(localStorage.getItem("currentUser")) {	
+	  let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+    
+    const headers = { 
+      "Content-Type": 'application/json',
+	   "Authorization": `Bearer ${tokend}`
+    };
+	 Promise.all([
+            fetch('https://dev.demo-swapithub.com/ecomm/api/user-detail',{ headers }),
+            fetch('https://dev.demo-swapithub.com/ecomm/api/countries')
+        ])
+        .then(([response, countryinfo]) => Promise.all([response.json(), countryinfo.json()]))
+		.then(([userData, countryData]) => {
+			var data = userData;
+			var countries = countryData;
+		this.setState({
+			userid: data.user.id,
+			first_name: data.user.first_name,
+			last_name: data.user.last_name,
+			postcode: data.user.postcode,
+			country: data.user.country,
+			phone: data.user.phone,
+			address1: data.user.address1,		
+			countriesAll:countries,
+            email:	data.user.email		
+        })
+		}
+		);
+	   } else {
+		
+	 Promise.all([
+          
+            fetch('https://dev.demo-swapithub.com/ecomm/api/countries')
+        ])
+        .then(([countryinfo]) => Promise.all([ countryinfo.json()]))
+		.then(([countryData]) => {
+			
+			var countries = countryData;
+		this.setState({
+					
+			countriesAll:countries,
+           	
+        })
+		}
+		);
+		
+		
+	}
+   /*  axios.get('https://dev.demo-swapithub.com/ecomm/api/countries')
+      .then(response => this.setState({ CartItems: response.data })); */
+  }
+  
+ handleChange(e) {
+    this.setState({ first_name: e.target.value	});
+  }
+    handleChange1(e) {
+    this.setState({ 
+		last_name: e.target.value
+			});
+  }
+    handleChange2(e) {
+    this.setState({ 
+		postcode: e.target.value	});
+  }
+    handleChange3(e) {
+    this.setState({ 
+		country: e.target.value	});
+  }
+  handleChange4(e) {
+	this.setState({ 	
+		phone: e.target.value
+	});
+  }
+    handleChange5(e) {
+    this.setState({ 
+		address1: e.target.value	});
+  } 
+     handleChangeemail(e) {
+    this.setState({ 
+		email: e.target.value	});
+  }
+  timer = () => setTimeout(() => {
+    this.setState({ loading: false })
+}, 2300);
+
+/*Only number enter*/
+  onKeyPressEvent = (event) => {
+    const keyCode = event.keyCode || event.which;
+    const keyValue = String.fromCharCode(keyCode);
+    if (!(new RegExp("[0-9]").test(keyValue)))
+      event.preventDefault();
+    return;
+  }
+  
+  render() {
+    const { postId,loading } = this.state;
+    const { CartItems } = this.state;
+    console.log('', CartItems);
+	 const { first_name,last_name,postcode,country,phone,address1,countriesAll,email } = this.state;
+
+    return (
+      <div>
+      {loading ? (<Loading />)
+      : (
+	  
+	  <>
+	  <div className="cart-title"><h2>Billing Address</h2></div>
+      <div className="chekout-inner Checkout_Form">
+        
+        
+        <form className='checkout_form_data ' onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">First Name</label>
+            <input type="text" name="first_name" value={first_name} onChange={this.handleChange} />
+            {this.validator.message("first_name", this.state.first_name, "required")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Last Name</label>
+            <input type="text" name="last_name"  value={this.state.last_name} onChange={this.handleChange1} />
+            {this.validator.message("last_name", this.state.last_name, "required")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input type="text" name="email"value={this.state.email} onChange={this.handleChangeemail}/>
+            {this.validator.message("email", this.state.email, "required|email")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Phone</label>
+            <input type="text" name="phone" value={this.state.phone} onChange={this.handleChange4} onKeyPress={this.onKeyPressEvent}/>
+            {this.validator.message("phone", this.state.phone, "required")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Address1</label>
+            <input type="text" name="address1" value={this.state.address1} onChange={this.handleChange5} />
+            {this.validator.message("address1", this.state.address1, "required")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Address2</label>
+            <input type="text" name="address2" value={this.state.address2} onChange={e => this.setState({ address2: e.target.value })} />
+            {this.validator.message("address2", this.state.address2, "required")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Country</label>
+            <select className="country-select" onChange={this.handleChange3} value={this.state.country}>
+			<option value="" >Please Select the Country</option>
+              {(countriesAll || []).map((countryselect, idxx) =>
+                <option value={countryselect.code} >{countryselect.name}</option>
+              )}
+            </select>
+            {this.validator.message("country", this.state.country, "required")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Postcode</label>
+            <input type="text" name="postcode" value={this.state.postcode} onChange={this.handleChange2} onKeyPress={this.onKeyPressEvent}/>
+            {this.validator.message("postcode", this.state.postcode, "required")}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Company</label>
+            <input type="text" name="company" value={this.state.company} onChange={e => this.setState({ company: e.target.value })}  />
+            {this.validator.message("company", this.state.company, "required")}
+          </div>
+
+
+          <div className="form-group checkout_form_dv">
+            <label className="form-label">Note</label>
+            <textarea type="textarea" name="comment" value={this.state.comment} onChange={e => this.setState({ comment: e.target.value })} />
+            {this.validator.message("comment", this.state.comment, "required")}
+          </div>
+          <div className="mb-3 checkout_form_dv">
+            <button className='btn btn-primary checkout_form_btn' type="submit">Continue to Payment</button>
+          </div>
+		  { this.state.errorMessage &&
+  <h5 className="error-message-checkout"> { this.state.errorMessage } </h5> }
+		  
+        </form>
+      </div>
+	   </>
+      )}
+	 
+</div>
+
+    );
+  }
+}

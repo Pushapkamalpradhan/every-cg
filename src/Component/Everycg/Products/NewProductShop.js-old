@@ -1,0 +1,205 @@
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
+//import LeftSiderBar from '../../SideBar/LeftSider/LeftSider'
+import { useParams,Link } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import Cookies from 'universal-cookie';
+import LeftSiderBar from '../../SideBar/LeftSider/LeftSider'
+import { authenticationService } from '../../../Component/Form/_services';
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from 'react-responsive-carousel';
+const NewProductShop = () => {
+	
+      const { currentUser,gfsaghsajk } = useState();
+	const { alias } = useParams();
+	const [productlist, SetPost,sessionid,session_id] = useState({});
+
+    authenticationService.currentUser.subscribe(x => this.setState({
+        currentUser: x,
+      }));
+
+
+
+	if (localStorage.getItem("cookieid") === null && localStorage.getItem("currentUser") === null) {
+		//let randomnumber =Math.random()
+		let setItems  = Math.random() * 500000;
+        setItems  = parseInt(setItems);
+		let cookiesset = localStorage.setItem('cookieid', JSON.stringify(setItems));
+		
+	} 
+	/* if (localStorage.getItem('currentUser') !== null) {
+		console.log(`user is login`);
+		localStorage.removeItem("cookieid");
+	} */
+		 //localStorage.removeItem("cookieid");
+		 //console.log('cookiesg',sr);
+	
+	
+	let cookieids = localStorage.getItem('cookieid');
+	console.log('cookiesg',cookieids);
+
+	const [cookies, setCookie,getCookie] = useCookies();
+	
+	/*  function handleCookie() {
+		let session_id = setCookie("sessionid", "qwertya", {
+		  path: "/"
+		});
+	  //}  */
+	  //const cookies = new Cookies();
+
+    useEffect(() => {
+        const fetch = async () => {
+            try {
+                const { data } = await axios.get(`https://dev.demo-swapithub.com/ecomm/api/productsnew/${alias}`);
+                SetPost(data[0]);
+				//console.log('data',data[0]);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetch();
+    }, []);	 
+	
+	function getRandomInt(max) {
+		let ggg = Math.floor(Math.random() * max);
+	}
+	//console.log('11',Math.random());
+	let randomnumber =Math.random()
+	console.log('testrandom',randomnumber);
+	
+    
+    let addToCart = async (e) => {
+		
+		if(localStorage.getItem("currentUser")) {
+	        e.preventDefault();
+        let product_id = e.currentTarget.id;
+        console.log(product_id);
+       let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+      //let token = localStorage.getItem('currentUser');
+       console.log(tokend);
+//let qty = 1
+const prod = JSON.stringify({ product_id: product_id, qty:1 });
+console.log(prod);
+//const myJSON = JSON.stringify(obj);
+        //try {
+			await axios.post("http://dev.demo-swapithub.com/ecomm/api/add_cart", prod, {
+ headers: {
+                    "Content-Type": 'application/json',
+                   // "Accept": 'application/json',
+                    "Authorization": `Bearer ${tokend}`
+                  
+                    //Authorization:localStorage.getItem('token')
+                   // Authorization: "Bearer" + localStorage.getItem('currentUser','token')
+					
+                }
+}).then(responselogin => {
+		console.log('responselogin',responselogin);
+		 if (responselogin.status == '200') {
+            //window.location.href = response.url;
+			window.location = '/Cart';
+        } 
+		
+		 });
+	
+	
+	
+		}
+		
+		
+		else {	
+        e.preventDefault();
+        let product_id = e.currentTarget.id;
+		
+     console.log(product_id);
+  /*  setCookie("sessionid", randomnumber, {
+      path: "/"
+    }); */
+	//let cookiiies = cookies.sessionid;
+	//console.log('cookiiies',cookiiies);
+	const prod = JSON.stringify({ product_id: product_id, qty:1,sessionid:cookieids });
+	console.log(prod);
+	
+				await axios.post("http://dev.demo-swapithub.com/ecomm/api/add-to-cart", prod, {
+					headers: {
+						"Content-Type": 'application/json',
+					   	
+					}
+					
+	}).then(response => {
+		console.log('respvalue',response);
+		 if (response.status == '200') {
+            //window.location.href = response.url;
+			console.log('respvalueasdas');
+			 window.location = '/Cart';
+        } 
+		
+		 });
+		}
+	//.then(item=> console.log('respvalue',item))
+	/* } catch (err) {
+	console.log(err);
+	} */
+	
+	
+	
+	
+    };
+ //	const gfsaghsajk = (productlist.images);
+   // console.log('abcs',gfsaghsajk); 
+   const imagegallery = (productlist.images);
+    return (
+<div className="container-fluid p-0 product-detail-final">
+            <div className="card">
+                <div className='row m-0'>
+                    <LeftSiderBar />
+                    <div className='col-md-10'>
+                        <div className="row g-0">
+                            <div className="col-md-6 border-end">
+                                <div className="d-flex flex-column justify-content-center">
+                                   
+                                    <div className="thumbnail_images">
+                                     
+                                        <Carousel
+                                            autoPlay={false}
+                                            showArrows={false}
+                                            infiniteLoop={true}
+                                            interval={100000}
+                                            stopOnHover={false}
+                                            showThumbs={true}
+                                            showStatus={true}
+                                            showIndicators={true}
+                                        >
+                                            <img src={'https://dev.demo-swapithub.com/ecomm/' + productlist.image} alt={productlist.name} />
+                                            {(imagegallery || []).map((datass, idxx) => <img key={datass.id} src={'https://dev.demo-swapithub.com/ecomm/' + datass.image} />)}
+
+                                            {/* {(imagegallery || []).map(pp => (<p key={pp.id}  />))} */}
+                                        </Carousel>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-md-6">
+                                <div className="p-3 right-side"><h2>{productlist.name}</h2>
+                                    <div className="mt-2 pr-3 content">
+                                        <p className="text-muted" dangerouslySetInnerHTML={{ __html: productlist.content }} ></p>
+                                    </div>
+                                    <h3>${productlist.price}</h3>
+         
+                                    <div className="buttons d-flex flex-row mt-5 gap-3">
+                                        
+                                        <button className="btn btn-dark" id={productlist.id}  onClick={addToCart}>Add to Cart</button>
+										<div className="view-cart"> 
+										{ /* <Link to={`/Cart/${productlist.alias}`} className='Shop_now_page'>View Cart</Link> */ }
+											<Link to='/Cart' className='Shop_now_page'>View Carts</Link>
+										</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default NewProductShop;

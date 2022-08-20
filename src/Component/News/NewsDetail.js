@@ -1,0 +1,104 @@
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import LeftSiderBar from '../SideBar/LeftSider/LeftSider'
+import { useParams, Link } from "react-router-dom";
+import loaderimage from '../../images/loader-orange.gif'
+
+const newsDetail = () => {
+	
+const Loading = () =>
+    <div className="col-md-10 position-relative loder_imag">
+        <img src={loaderimage} />
+
+    </div>
+	
+    const { id } = useParams();
+    const [newslist, SetPost] = useState({});
+const [isLoading, setLoading] = useState(true)
+    useEffect(() => {
+        const fetch = async () => {
+            try {
+                const { data } = await axios.get(`https://dev.demo-swapithub.com/ecomm/api/news/${id}`);
+                SetPost(data[0]);
+				setLoading(false)
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetch();
+    }, []);
+
+    const relatednews = (newslist.related);
+    return (
+        <div className="newsdetail-main container-fluid p-0">
+            <div className="card ">
+                <div className='row m-0'>
+                    <LeftSiderBar />
+                    <div className='col-md-10 width_int news_detail_page'>
+					{isLoading ? (   //Checkif if is loading
+								<Loading />
+								) : (
+                        <div className="news_detail_page_sed">
+                            <div className="row g-0 news-detail-innr">
+                                <div className="col-md-4 border-end left-sect">
+
+                                    <div className="main_image">
+                                        <img src={'https://dev.demo-swapithub.com/ecomm/' + newslist.image} alt={newslist.name} />
+                                    </div>
+
+                                </div>
+                                <div className="col-md-8 right-sect">
+                                    <div className="p-3 right-side"><h2>{newslist.title}</h2>
+                                        <div className='date_time'>
+                                            <p><i class="fa fa-calendar"></i>{newslist.date}</p>
+                                            <p><i class="fa fa-clock-o"></i>{newslist.time}</p>
+                                        </div>
+                                        <div className="mt-2 pr-3 content">
+                                            <p className="text-muted" dangerouslySetInnerHTML={{ __html: newslist.content }} ></p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div className="related_news row">
+                                {(relatednews || []).length === 0 ? <p></p> : <h3>Related News</h3>}
+
+                                {(relatednews || []).map((relatedsnews, idxx) =>
+                                    <div className="col-md-6 col-lg-4 col-xl-12 mt-3 news-listing p-0">
+                                        <div className="text-black row">
+                                            <div className='col-md-12 col-xl-4 news-image-sect' key={relatedsnews._id}>
+                                                {/* <Link to={'/ProductShop/' + item.alias} className='Shop_now_page'> */}
+                                                <img src={'https://dev.demo-swapithub.com/ecomm/' + relatedsnews.image} alt={relatedsnews.name} />
+                                                {/* </Link> */}
+                                            </div>
+                                            <div className="col-sm-12 col-xl-8 news-body">
+                                                <div className="text-center">
+                                                    <h5 className="card-title news-title">{relatedsnews.title}</h5>
+                                                    <div className='date_time'>
+                                                        <p><i class="fa fa-calendar"></i>{relatedsnews.date}</p>
+                                                        <p><i class="fa fa-clock-o"></i>{relatedsnews.time}</p>
+                                                    </div>
+                                                    <p className="text-mutted"
+                                                        numberOfLines={2} ellipsizeMode='end'
+                                                        dangerouslySetInnerHTML={{ __html: relatedsnews.content }} ></p>
+                                                    <div className='read-morenews'>
+                                                        <a href={`/newsdetail/${relatedsnews.alias}`} className='read-more'>Read More</a>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+						)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default newsDetail;

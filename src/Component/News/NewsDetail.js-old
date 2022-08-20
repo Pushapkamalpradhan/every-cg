@@ -1,0 +1,87 @@
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import LeftSiderBar from '../SideBar/LeftSider/LeftSider'
+import { useParams, Link } from "react-router-dom";
+const newsDetail = () => {
+    const { id } = useParams();
+    const [newslist, SetPost] = useState({});
+    useEffect(() => {
+        const fetch = async () => {
+            try {
+                const { data } = await axios.get(`https://dev.demo-swapithub.com/ecomm/api/news/${id}`);
+                SetPost(data[0]);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetch();
+    }, []);
+
+    const relatednews = (newslist.related);
+    return (
+        <div className="newsdetail-main container-fluid p-0">
+            <div className="card news-detail-innr">
+                <div className='row m-0'>
+                    <LeftSiderBar />
+                    <div className='col-md-10'>
+                        <div className="row g-0">
+                            <div className="col-md-6 border-end left-sect">
+                                <div className="d-flex flex-column justify-content-center">
+                                    <div className="main_image">
+                                        <img src={'https://dev.demo-swapithub.com/ecomm/' + newslist.image} alt={newslist.name} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-md-6 right-sect">
+                                <div className="p-3 right-side"><h2>{newslist.title}</h2>
+									<div className='date_time'>
+										<p><i class="fa fa-calendar"></i>{newslist.date}</p>
+										<p><i class="fa fa-clock-o"></i>{newslist.time}</p>
+									</div>
+                                    <div className="mt-2 pr-3 content">
+                                        <p className="text-muted" dangerouslySetInnerHTML={{ __html: newslist.content }} ></p>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div className="related_news">
+						
+						<h3>Related News</h3>
+                        {(relatednews || []).map((relatedsnews, idxx) =>
+                                    <div className="col-md-6 col-lg-12 col-xl-12 mt-3 news-listing">
+                                        <div className="text-black row">
+                                            <div className='col-md-4 news-image-sect' key={relatedsnews._id}>
+                                                {/* <Link to={'/ProductShop/' + item.alias} className='Shop_now_page'> */}
+                                                <img src={'https://dev.demo-swapithub.com/ecomm/' + relatedsnews.image} alt={relatedsnews.name} />
+                                                {/* </Link> */}
+                                            </div>
+                                            <div className="col-md-8 news-body">
+                                                <div className="text-center">
+                                                    <h5 className="card-title news-title">{relatedsnews.title}</h5>
+                                                    <div className='date_time'>
+                                                        <p><i class="fa fa-calendar"></i>{relatedsnews.date}</p>
+                                                        <p><i class="fa fa-clock-o"></i>{relatedsnews.time}</p>
+                                                    </div>
+                                                    <p className="text-mutted"
+                                                        numberOfLines={2} ellipsizeMode='end'
+                                                        dangerouslySetInnerHTML={{ __html: relatedsnews.content }} ></p>
+                                                    <div className='read-morenews'>
+                                                        <Link to={`/newsDetail/${relatedsnews.id}`} className='read-more'>Read More</Link>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+                                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default newsDetail;

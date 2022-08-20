@@ -1,0 +1,111 @@
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+//import React from 'react';
+import React, { useEffect, useState } from "react";
+//import axios from 'axios';
+import LeftSiderBar from '../SideBar/LeftSider/LeftSider'
+import { useParams,Link } from "react-router-dom";
+import { authenticationService } from './_services';
+import bgimage from '../../images/background-.jpg';
+import logoimage from '../../images/logo-forms.png';
+
+
+//function Login(props){
+class Login extends React.Component {
+    constructor(props) {
+      super(props);
+		this.state = {
+            users: null,
+			type: 'password',
+        }
+      // redirect to home if already logged in
+      if (authenticationService.currentUserValue) { 
+          this.props.history.push('/');
+      }
+	   this.showHide = this.showHide.bind(this);
+  }
+   componentDidMount() {
+    }
+	showHide(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.setState({
+            type: this.state.type === 'input' ? 'password' : 'input'
+        })
+    }
+  render() {
+      return (
+        <div className="main-login main-forms container-fluid">
+        <div className="row login-row">
+            <LeftSiderBar />
+        <div className="col-md-10 login-col width_int" >
+		<div className="background-image-form"  style={{background: `url(${bgimage})`,}}>
+	
+            <div className='main-login-inner form-common-main '>
+            <div className='login-logo'>
+               <img src={logoimage} /> 
+             
+              </div>
+			   <h2 className="login-title">Login</h2>
+             <Formik
+                  initialValues={{
+                      email: '',
+                      password: ''
+                  }}
+                  validationSchema={Yup.object().shape({
+                      email: Yup.string().required('email is required'),
+                      password: Yup.string().required('Password is required')
+                  })}
+                  onSubmit={({ email, password,sessionid }, { setStatus, setSubmitting }) => {
+                      setStatus();
+                      authenticationService.login(email, password,sessionid)
+                          .then(
+                              user => {
+                                  const { from } = this.props.location.state || { from: { pathname: "/" } };
+                                  //this.props.history.push(from);
+								   document.location.reload('from')
+                              },
+                              error => {
+                                  setSubmitting(false);
+                                  setStatus(error);
+                              }
+                          );
+                  }}
+                  render={({ errors, status, touched, isSubmitting }) => (
+                      <Form  className='login_form'>
+                          <div className="form-group">
+                              <label htmlFor="email">Email Address</label>
+                              <Field name="email" type="text" className={'form-control' + (errors.email && touched.email ? ' is-invalid' : '')} />
+                              <ErrorMessage name="email" component="div" className="invalid-feedback" />
+                          </div>
+							<div className="form-group">
+								<label htmlFor="password">Password</label>
+								<Field name="password"	type={this.state.type} className={'form-control' + (errors.password && touched.password ? ' is-invalid' : '')} />
+								<span className="password__show" onClick={this.showHide}> {this.state.type === 'Field' }<i class="fa fa-eye"></i><i class="fa fa-eye-slash"></i></span>
+								<ErrorMessage name="password" component="div" className="invalid-feedback" />
+							</div>
+						  { /*<div className="forgot-password"><Link to="/">Forgot Password</Link></div>*/}
+
+						<div className="form-group">
+							<button type="submit" className="btn btn-primary" disabled={isSubmitting}> {isSubmitting &&
+							<i class="fa fa-spinner fa-spin"></i>
+						}Login</button>
+
+						</div>
+                       
+                          {status &&
+                              <div className={'alert alert-danger'}>{status}</div>
+                          }
+                      </Form>
+                  )}
+              />
+          </div>
+          </div>
+          </div>
+          </div>
+          </div>
+      )
+  }
+}
+export default Login;
+//export { Login }; 

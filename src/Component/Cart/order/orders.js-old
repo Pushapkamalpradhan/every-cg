@@ -1,0 +1,119 @@
+import React, { useState, Component} from "react";
+import axios from 'axios'
+//import SimpleReactValidator from "simple-react-validator";
+import LeftSiderBar from '../../../Component/SideBar/LeftSider/LeftSider'
+import { useCookies } from "react-cookie";
+import Cookies from 'universal-cookie';
+import { authenticationService } from '../../../Component/Form/_services';
+//import { Link,withRouter } from 'react-router-dom';
+
+import { withRouter,Link } from 'react-router-dom';
+class Orders extends React.Component {
+
+//export default class Orders extends Component {
+constructor() {
+        super();
+        this.state = {
+            users: null,
+			currentUser: null,
+        }
+        
+    }	
+
+componentDidMount() {
+	 authenticationService.currentUser.subscribe(x => this.setState({
+      currentUser: x,
+    })); 
+	 if(localStorage.getItem("currentUser")) {	
+	 
+ let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+// let orderIds = JSON.parse(localStorage.getItem('orderIds'));
+ //console.log(orderIds);
+ /*    authenticationService.currentUser.subscribe(x => this.setState({
+      currentUser: x,
+    })); */
+	 const headers = { 
+      "Content-Type": 'application/json',
+	   "Authorization": `Bearer ${tokend}`
+	  
+    }; 
+    //axios.get(`https://dev.demo-swapithub.com/ecomm/api/orders/${orderIds}`)
+    axios.get('https://dev.demo-swapithub.com/ecomm/api/orders', { headers })
+        .then(response => this.setState({ orderid: response.data.orders
+        //  orderemail: response.data.order.email,
+        //  subtotal: response.data.order.subtotal,
+        //  first_name: response.data.order.first_name,
+		
+		
+		}));
+	 }
+}
+   goToCategory = (ordersdata) => {
+        const { history } = this.props;
+        history.push(`/orderdetail/${ordersdata.id}`,{ catId: ordersdata.id});
+		//history.push({ catname: item.name })
+		//{`/orderdetail/${ordersdata.id}`} 
+    }
+  render() {
+    const { orderid, orderemail,subtotal,first_name} = this.state;
+   const { currentUser } = this.state;
+    console.log('orderData',orderid);
+    return (
+	<div className="container-fluid orders-page">
+		
+		<div className="row orders-row">
+			<div className="row orders-page">
+			<LeftSiderBar />
+			{!currentUser ?
+			<div className="col-md-10 orders-col orders-inner" >
+				For accessing this Page need to Login First
+			</div>
+			:
+				<div className="col-md-10 orders-col orders-inner" >
+				<h2>Orders List</h2>
+				<table className="cart-table table box table-bordered">
+			<thead> 
+				<tr>
+			
+					<th>S.No.</th>
+					
+					<th>Name</th>
+					<th>Email</th>
+					<th>Total</th>
+					<th>View Detail</th>
+					
+				</tr>
+			</thead>
+			 
+			<tbody>
+			 {(orderid || []).map((ordersdata, i) => 
+				
+					<tr className="row_cart">
+					<td>{i+1}</td>
+					
+					<td>{ordersdata.first_name}</td>					
+					<td>{ordersdata.email}</td>
+					<td>{ordersdata.total}</td>
+					<td>
+					 <button onClick={() => this.goToCategory(ordersdata)}>View Order </button>
+</td>
+					
+					</tr>
+					)}
+			</tbody>
+		</table> 
+				
+				
+      
+				</div>  }    
+			</div>     
+		</div>    
+	</div>     
+       
+    
+
+      
+    );
+  }
+}
+export default withRouter(Orders);

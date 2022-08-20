@@ -1,0 +1,30 @@
+import React from "react";
+import LeftSiderBar from '../SideBar/LeftSider/LeftSider';
+import FeaturedProducts from '../Everycg/Products/featuredProducts'
+// import QuerySelector from '../Everycg/QuerySlider'
+import { Link } from 'react-router-dom';
+import BannerSlider from '../Everycg/BannerSlider'
+export default function Home() {
+    return (
+        <div className="container-fluid">
+            <div className="row">
+                <LeftSiderBar />
+                <div className="col-md-10  width_int" >
+                    <div className="row">
+                        <div className="evermotion_shop col-md-8">
+                            <p>Welcome to Evermotion Shop - your cg assets, software and tutorials resource!</p>
+                            <h2>New releases in Evermotion Shop</h2>
+                        </div>
+                        <div className="contact_support col-md-4">
+                            <Link to='/contact' className='contact_support_text'>Contact Support</Link>
+                        </div>
+                    </div>
+                    {/* <QuerySelector /> */}
+                    <BannerSlider />
+                    <h3 className="FeaturedProducts">Featured Products</h3>
+                    <FeaturedProducts />
+                </div>
+            </div>
+        </div>
+    );
+}

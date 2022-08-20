@@ -1,0 +1,262 @@
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import LeftSiderBar from '../../Component/SideBar/LeftSider/LeftSider'
+import { useParams,Link } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import Checkout from "./checkout/checkout";
+import loder from '../../images/loader-orange.gif'
+import Loader from 'react-loader-spinner';
+const Loading =()=>
+<div className="col-md-10 position-relative loder_imag">
+	<img src={loder} />
+</div>
+
+
+class Cart extends React.Component {
+   constructor() {
+        super();
+        this.state = {
+            CartItems: null,
+			qty: 1,
+			id: '',
+			loading: true,
+				   errorMessagesss: '',
+				  hasError: '',
+				  stts: ''
+			
+        }
+		
+    }
+	
+componentDidMount(e) {
+	 this.isLoading = setTimeout(()=>{this.setState({loading: false})}, 2300);
+  
+  /*---With Login----*/
+ if(localStorage.getItem("currentUser")) {	
+let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+    let cookiid = localStorage.getItem('cookieid');
+	//console.log('cookies',cookiid);
+    const headers = { 
+      "Content-Type": 'application/json',
+	   "Authorization": `Bearer ${tokend}`
+    };
+    axios.get('https://dev.demo-swapithub.com/ecomm/api/cart',{ headers })
+        .then(response => this.setState({ CartItems: response.data.Cart,cartTotal:response.data.Total }));	
+		
+ }
+ 
+ /*---Without Login----*/
+
+	else {
+	let cookiid = localStorage.getItem('cookieid');
+	//console.log('cookies',cookiid);
+
+	const prod = JSON.stringify({sessionid:cookiid });
+   
+    const headers = { 
+      "Content-Type": 'application/json',
+    };
+    axios.post('https://dev.demo-swapithub.com/ecomm/api/get_cart', prod, { headers })
+        .then(response => this.setState({ CartItems: response.data.Cart,cartTotal:response.data.Total }));
+ }		
+}
+  componentWillUnmount() {
+     clearTimeout(this.isLoading);
+  }
+  
+  timer = () => setTimeout(()=>{
+    this.setState({loading: false})
+  }, 2300);
+handleId = (e) => {
+ 
+const cartids = e.currentTarget.id;
+}
+  
+/******Updated Cart****************/
+handleOnChange(value,events){
+	
+	if(localStorage.getItem("currentUser")) {	
+		this.setState({
+		  qty: value.target.value
+		});
+	 
+		const qty = value.target.value;
+		const cartids = value.currentTarget.id;
+		const prod = JSON.stringify({qty : qty,cartid: cartids });
+		
+		let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+		const headers = { 
+		  "Content-Type": 'application/json',
+		   "Authorization": `Bearer ${tokend}`
+		  
+		};
+		axios.post('https://dev.demo-swapithub.com/ecomm/api/cart_update', prod, { headers })
+			.then(response => this.setState({ CartItems: response.data.Cart,cartTotal:response.data.cartCount,stts:response.status }))
+			.then((response) => {
+				if(this.state.stts === 200){
+					//console.log('ok',this.state.stts);					
+					window.location.reload();
+				}
+			})  
+			.catch(function (error) {
+				if (error.response) {
+				  //console.log(error.response.data);
+				//  console.log(error.response.status);
+				 // console.log(error.response.headers);
+				  if(error.response.status ===  409){
+				   alert(error.response.data.msg);
+				  }
+				  
+			}});
+
+	} else {
+
+	this.setState({
+	qty: value.target.value
+	});
+	
+	const qty = value.target.value;
+	const cartids = value.currentTarget.id;
+	
+	let cookiid = localStorage.getItem('cookieid');
+
+	const prod = JSON.stringify({sessionid:cookiid,qty : qty,cartid: cartids });
+	const headers = { 
+	"Content-Type": 'application/json',
+	};
+    axios.post('https://dev.demo-swapithub.com/ecomm/api/update_cart', prod, { headers })
+        .then(response => this.setState({ CartItems: response.data.Cart,cartTotal:response.data.Total,stts:response.status }))
+		.then((response) => {
+				if(this.state.stts === 200){
+					window.location.reload();
+				}
+			})
+		.catch(function (error) {
+				if (error.response) {
+				 if(error.response.status ===  409){
+				   alert(error.response.data.msg);
+				 }
+				  
+			}});
+  } 
+	 
+}
+ 
+ 
+cartRemove(e){	
+    
+	const cartids = e.currentTarget.id;  
+	let cookiids = localStorage.getItem('cookieid');
+	//console.log('cookies',cookiids);
+	const headers = { 
+		"Content-Type": 'application/json',
+	};
+	
+	const prodremove = JSON.stringify({sessionid:cookiids,cartid: cartids });
+	axios.post('https://dev.demo-swapithub.com/ecomm/api/remove_cart', prodremove, { headers })
+        //.then(response => this.setState({ CartItemsnew: response.data.Cart,cartTotal:response.data.Total }))
+		.then((response) => {			
+			//console.log('',response.status);
+ 			if(response.status === 200){
+				window.location.reload();					
+			}
+			}); 
+ 
+}
+
+
+renderInputs(value){
+	const inputs=[];
+	for(let i=1; i<value; i++){
+	inputs.push(<div><input type="text" name="qty"/></div>)
+	}
+	return inputs;
+}
+ 
+handleId = (e) => {   
+ const catttid = e.currentTarget.id;
+ //console.log('sada',e.target.getAttribute("id"));
+}
+
+
+render() {
+//console.log(this.state.qty);
+// console.log('catttidasdas',this.handleId);
+const { CartItems,cartTotal } = this.state;
+const {loading} = this.state;
+
+return (
+ <div className="container-fluid cart-checkout-main">  
+ 
+	<div className="row cart-page">	
+	<LeftSiderBar />
+	{loading ? (<Loading/>)
+      :(
+	<div className="col-md-10 cart-col cart-checkout-inner width_int" >
+	{(CartItems || []).length === 0 ? <div className="cart-empty"><h2>Cart is empty</h2>
+		<Link to="/products">Back to Shop</Link></div>
+		: 	 
+		<div className="cart-main">
+		<div className="cart-title"><h3>View Cart</h3> { this.state.errorMessagesss &&
+  <h3 className="success-message"> { this.state.errorMessagesss } </h3> }</div>
+		<div className="table_responsive_order">
+		<table className="cart-table table box table-bordered cart_diteal_page">
+			<thead> 
+				<tr>
+					<th>S.No.</th>
+					<th>SKU</th>
+					<th>Name</th>
+					<th>Price</th>
+					<th>Quantity</th>
+					<th>Total</th>					
+					<th>Delete</th>
+				</tr>
+			</thead>
+			 
+			<tbody>
+				{
+				this.state.CartItems ?
+				this.state.CartItems.map((item,i
+				) =>
+				<tr className="row_cart cart_item_page">
+					<td className="sr_no" >{i + 1}</td>
+					<td className="product-thumbnail" data-title="sku">{item.sku}</td>
+					<td className="product-name" data-title="Product Name"><p>{item.name}</p></td>
+					<td className="product-price" data-title="Product Price">${item.price}</td>
+					<td className="product-quantity" data-title="Product Quantity">
+					<input type="number" name="quantity" onWheel={() => document.activeElement.blur()} id={item.id} min="1" max="99999" value={item.qty}  className="type-qty" onChange={(value) => this.handleOnChange(value)} />
+					</td>
+					<td className="product-totalprice" id={item.id} data-title="Product Subtotal">{item.subtotal}</td>
+					<td id={item.id} className="close_product product-remove" onClick={this.cartRemove}><i class="fa fa-close"></i><i class="fa fa-trash-o"></i></td>
+				</tr>			
+					)
+					:
+					null
+				}
+			</tbody>
+		</table> 
+		
+		     <div className="bottom-sect">
+				<div className="left-sect">
+					<div className="backto-home-btn">
+						<Link to="/products">Back to Shop</Link>
+					</div>
+				</div>
+				<div className="right-sect">
+					<div className="backto-home-btn">
+						<h5><span>Cart Total :</span><span>$</span>{cartTotal}</h5>
+					</div>
+				</div>
+			</div> 
+			</div>
+			<div className="checkout-main"><Checkout/></div>
+		
+	</div>
+
+	} </div>)}
+</div>
+</div>
+);
+}
+}
+export default Cart;

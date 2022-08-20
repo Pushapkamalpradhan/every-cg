@@ -1,0 +1,70 @@
+import React, { useState, Component} from "react";
+import axios from 'axios'
+//import SimpleReactValidator from "simple-react-validator";
+import LeftSiderBar from '../../../Component/SideBar/LeftSider/LeftSider'
+import { useCookies } from "react-cookie";
+import Cookies from 'universal-cookie';
+import { authenticationService } from '../../../Component/Form/_services';
+
+
+export default class Thankyou extends Component {
+constructor() {
+        super();
+        this.state = {
+            users: null
+        }
+        
+    }	
+
+componentDidMount() {
+// let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+ let orderIds = JSON.parse(localStorage.getItem('orderIds'));
+ console.log(orderIds);
+ /*    authenticationService.currentUser.subscribe(x => this.setState({
+      currentUser: x,
+    })); */
+	/* const headers = { 
+      "Content-Type": 'application/json'
+	  // "Authorization": `Bearer ${tokend}`
+	  
+    }; */
+    axios.get(`https://dev.demo-swapithub.com/ecomm/api/orders/${orderIds}`)
+        .then(response => this.setState({ orderid: response.data.order.id,
+          orderemail: response.data.order.email,
+          subtotal: response.data.order.subtotal,
+          first_name: response.data.order.first_name,
+		
+		
+		}));
+}
+
+  render() {
+    const { orderid, orderemail,subtotal,first_name} = this.state;
+  
+   // console.log('orderData',orderData);
+    return (
+	<div className="container-fluid thankyou-page">
+		<div className="row thankyou-row">
+			<div className="row thankyou-page">
+			<LeftSiderBar />
+				<div className="col-md-10 thankyou-col thankyou-inner" >
+				<h2>Thank You, Your order has been succeed</h2>
+				<h2>Order Details</h2>
+				 Name {first_name}<br/>
+				  Order Email {orderemail}<br/>
+        Order Id:{orderid}<br/>
+      
+       Order Subtotal {subtotal}<br/>
+      
+      
+				</div>     
+			</div>     
+		</div>     
+	</div>     
+       
+    
+
+      
+    );
+  }
+}

@@ -1,0 +1,51 @@
+import React from "react";
+import { Link } from 'react-router-dom';
+import home from '../../../images/home-1.png';
+import home2 from '../../../images/home-2.png';
+import category from '../../../images/category.png';
+import News from "../../../images/news.png";
+import shop from '../../../images/shop.png';
+import product from '../../../images/product.png';
+import product2 from '../../../images/product-2.png';
+export default function LeftSiderBar() {
+    return (
+        <div className="col-md-2 leftSideBar">
+            <ul>
+                <li><Link to="/" >
+                    <img src={home} alt="home-icon" />
+                    <img src={home2} alt="home-icon" className="d-none" />
+                    Home</Link></li>
+                <li class="dropdown dropdownHover">
+                    {/* <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Dropdown button
+                    </button> */}
+                    <img src={category} alt="home-icon" className="black_img" />
+                    {/* <img src={category2} alt="home-icon" className="d-none white_img"/> */}
+                    <Link to="/Category">Category</Link>
+                    {/* <ul class="dropdown-menu dropdownHoverMenu">
+                        <li><i class='fa fa-list'></i><Link to="/ProductCategory">Category</Link></li>
+                    </ul> */}
+                </li>
+                <li>
+                    <Link to="/Products" >
+                    <img src={product} alt="home-icon" /> 
+                   <img src={product2} alt="home-icon" className="d-none"/>
+                    Product
+                    </Link>
+                    </li>
+                 <li className="nav-item mobile_show">
+                    <Link to="/news" className="nav_link">
+                        <img src={News} alt="home-icon" />
+                        News
+                    </Link>
+                </li>
+                <li className="nav-item mobile_show">
+                    <Link to="/Products" className="nav_link">
+                        <img src={shop} alt="home-icon" />
+                        Shop
+                    </Link>
+                </li>
+            </ul>
+        </div>
+    )
+}

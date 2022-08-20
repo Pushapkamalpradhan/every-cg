@@ -1,0 +1,175 @@
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import cart from '../images/cart.png'
+// import ManeBody from '../Component/body'
+import { Link } from 'react-router-dom';
+import logo from '../images/logo.png'
+import Home from '../Component/Home'
+//  import Shop from './shop'
+import NavBar from '../Component/NavBar'
+import SearchApi from '../Component/Everycg/SearchApiHeader'
+import LeftSider from '../Component/SideBar/LeftSider/LeftSider'
+import { authenticationService } from '../Component/Form/_services';
+import { history } from '../Component/Form/_helpers';
+import { useCookies } from "react-cookie";
+class Header extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentUser: null,
+      userService: null,
+      CartItems: null,
+      show: false,
+      show2: false
+    };
+  }
+  componentDidMount() {
+
+    /*---With Login----*/
+    if (localStorage.getItem("currentUser")) {
+      let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+      authenticationService.currentUser.subscribe(x => this.setState({
+        currentUser: x,
+      }));
+      const headers = {
+        "Content-Type": 'application/json',
+        "Authorization": `Bearer ${tokend}`
+      };
+      axios.get('https://dev.demo-swapithub.com/ecomm/api/cart_count', { headers })
+        .then(response => this.setState({
+          CartItems: response.data.cartCount
+        }));
+    } else {
+      let cookiid = localStorage.getItem('cookieid');
+      console.log('cookiesheader', cookiid);
+      const prod = JSON.stringify({ sessionid: cookiid });
+      authenticationService.currentUser.subscribe(x => this.setState({
+        currentUser: x,
+      }));
+      const headers = {
+        "Content-Type": 'application/json',
+      };
+      axios.post('https://dev.demo-swapithub.com/ecomm/api/cart_total', prod, { headers })
+        .then(response => this.setState({
+          CartItems: response.data.cartCount
+        }));
+    }
+  }
+
+  /*   componentDidMount(e) {
+  /* 	const  handleId = (e) => {   
+     const catttid = e.currentTarget.id;
+     console.log('sada',catttid);
+    } 
+    let cookiid = localStorage.getItem('cookieid');
+    console.log('cookies',cookiid);
+  
+    const prod = JSON.stringify({sessionid:cookiid });
+      // POST request using axios with set headers
+      
+      const headers = { 
+        "Content-Type": 'application/json',
+      };
+      axios.post('https://dev.demo-swapithub.com/ecomm/api/get_cart', prod, { headers })
+          .then(response => this.setState({ CartItems: response.data.Cart }));
+    	
+  } */
+
+
+  logout(setToken) {
+    authenticationService.logout();
+    //localStorage.removeItem('currentUser');
+    // currentUserSubject.next(null);
+    localStorage.removeItem("token");
+    //setToken(null)
+    //localStorage.clear();
+    //window.location.reload = '/';
+    if (document.referrer !== document.location.href) {
+      //setTimeout(function() {
+      document.location.reload('/')
+      // }, 1000);
+    }
+    //history.push('/');
+  }
+  render() {
+    const { CartItems } = this.state;
+    const sssss = console.log('CartItemsCartItems', CartItems);
+    const { currentUser } = this.state;
+    return (
+      <div>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+          <div className="collapse navbar-collapse container-fluid" id="navbarSupportedContent">
+            <div className="col-md-6 d-flex nab_left">
+              <Link className="navbar-brand col-md-3" to="/" name={Home}> <img src={logo} alt="dsf" /></Link>
+              {/* <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button> */}
+              <div className="togial_menu_div">
+                {
+                  this.state.show ?
+                    <div className="togial_menu">
+                      <span className="logo_imag_togel"><img src={logo} alt="dsf" /></span>
+                      <button className="close_tagle" onClick={() => { this.setState({ show: !this.state.show }) }}><i class="fa fa-close"></i></button>
+                      <div className="LeftSider_bar_menu"> <LeftSider /></div>
+                    </div>
+                    : null
+                }
+                <button className="open_tagle" onClick={() => { this.setState({ show: !this.state.show }) }}><i class="fa fa-bars"></i></button>
+              </div>
+              <NavBar />
+            </div>
+            <div className="col-md-6 d-flex nab_right">
+              <div className=" cart">
+                <Link to="/Cart" className='cart_btn_dt'>
+                  <img src={cart} alt="dsfs" />
+                  <p className='queant'>{CartItems}</p>
+                </Link>
+              </div>
+              <div className="search_div">
+                <button className="tab_btn search_name dextop_hide" onClick={() => { this.setState({ show2: !this.state.show2 }) }}><i className="fa fa-search"></i></button>
+                {
+                  this.state.show2 ?
+                    <SearchApi />
+                    : null
+                }
+              </div>
+              <SearchApi />
+              <div className="mobile_hide">
+                <button className="mobile_register_loginout_login" onClick={() => this.setState({ active: !this.state.active })}><i class="fa fa-sign-in"></i></button>
+                <span className={this.state.active && 'menu_show' || 'menu_remove'}>
+                  <div className="register_loginout_login">
+
+                    {!currentUser &&
+                      <div className="register_or_login">
+                        <Link className="nav-link"
+                          to="/Register"
+                        // to="/Login"
+                        >Register</Link>
+                      </div>
+                    }
+                    {!currentUser &&
+                      <div className="register_or_login">
+                        <Link className="nav-link"
+                          //  to="/Register"
+                          to="/Login"
+                        >Login</Link>
+                      </div>
+                    }
+                    {currentUser &&
+                      <div className="register_or_login login_out">
+                        <a onClick={this.logout} className="nav-item nav-link">Logout</a>
+                      </div>
+                    }
+                  </div>
+                </span>
+              </div>
+            </div>
+          </div>
+        </nav>
+        {/* <ManeBody /> */}
+      </div>
+    );
+  }
+}
+export default Header;

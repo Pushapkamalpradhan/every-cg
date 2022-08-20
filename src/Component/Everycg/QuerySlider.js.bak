@@ -1,0 +1,76 @@
+import React from 'react'
+// import { Link } from 'react-router-dom';
+class querySelector extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: null
+    }
+  }
+  componentDidMount() {
+    fetch('https://dev.demo-swapithub.com/ecomm/api/slider').then((Response) => {
+      Response.json().then((result) => {
+        console.log(result)
+        this.setState({ users: result })
+      })
+    })
+  }
+
+  render() {
+    return (
+      <div id="carouselExampleCaptions" className="carousel slide" data-bs-ride="carousel">
+        <div className="carousel-indicators home_slider_dot">
+          <p>_______</p>
+          {
+            this.state.users ?
+              this.state.users.map((slider,index//, aria , current_page
+              ) =>
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0"  className={index===0 ?"shop_new_slass active": "shop_new_slass"}
+          //  aria-current={aria===0 ?"true": "false"}
+            aria-label="Slide 1">{slider.id} </button>
+
+          )
+          :
+          null
+      }
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1">01</button>
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"><span className="shop_new_slass">/</span>02</button>
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"><span className="shop_new_slass">/</span>03</button>
+        </div>
+        <div className="carousel-inner">
+          {
+            this.state.users ?
+              this.state.users.map((slider,index// , current_page
+              ) =>
+                // <div className="carousel-item active">
+                <div className={index===0 ?"carousel-item active": "carousel-item"}>
+                  {/* <img src={BannseImg} className="d-block w-100" alt="..." /> */}
+                  <img src={'https://everycg.com/administrator/' + slider.image} alt={slider.name} />
+                  <div className="carousel-caption home_slider">
+                    <p className="text-muted" numberOfLines={2} ellipsizeMode='end' dangerouslySetInnerHTML={{ __html: slider.html }} ></p>
+                    
+                    {/* <Link className="shop_new_home_sld">SHOP NOW</Link> 
+                      <h5>ARCHINTERIORS VOL.57 FOR BLENDER 1</h5>
+                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod  empor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. 1</p> */}
+                  </div>
+                </div>
+              )
+              :
+              null
+          }
+        </div>
+
+        
+        {/* <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+      <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span className="visually-hidden">Previous</span>
+    </button>
+    <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+      <span className="carousel-control-next-icon" aria-hidden="true"></span>
+      <span className="visually-hidden">Next</span>
+    </button> */}
+      </div>
+    );
+  }
+}
+export default querySelector;

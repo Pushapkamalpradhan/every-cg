@@ -1,0 +1,90 @@
+import React  from "react";
+import logo from '../images/logo.png'
+import call from '../images/call.png'
+import map from '../images/map.png'
+import timeSet from '../images/timeSet.png'
+import { Link } from 'react-router-dom';
+import { authenticationService } from '../Component/Form/_services';
+class Footer extends React.Component {
+//export default function Footer(){
+	constructor() {
+    super();
+
+    this.state = {
+      currentUser: null,
+          };
+  }
+    componentDidMount() { 
+	 authenticationService.currentUser.subscribe(x => this.setState({
+      currentUser: x,
+    })); 
+	}
+  
+	   render() { 
+	    const { currentUser } = this.state;
+		if(localStorage.getItem("currentUser")) {	
+			 let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+			 console.log('asda',tokend);
+		}
+		/*  authenticationService.currentUser.subscribe(x => this.setState({
+      currentUser: x,
+    })); */
+    return(
+        
+     
+                <div className="row m-0 footer">
+                    <div className="col-md-2 contact_dt">
+                    <Link className="footer_logo " to="/" > <img src={logo} alt="dsf" /></Link>
+                    <ul>
+                        <li><Link to='/'><img src={call}  alt="dsf" /> <span>+91 987 654 3210</span></Link></li>
+                        <li><Link to='/'><img src={map}  alt="dsf" /> <span>Lorem ipsum dolor sit amet</span></Link></li>
+                        <li><Link to='/'><img src={timeSet}  alt="dsf" /> <span>8:00 to 16:00 (+1.00 GMT)</span></Link></li>
+                    </ul>
+                    </div>
+                    <div className="col-md-2 shop_ul">
+                        <h4>SHOP</h4>
+                        <ul>
+                            <li><Link to='/'>Lorem ipsume dummy</Link></li>
+                            <li><Link to='/'>Lorem ipsume dummy</Link></li>
+                            <li><Link to='/'>Lorem ipsume dummy</Link></li>
+                            <li><Link to='/'>Lorem ipsume dummy</Link></li>
+                            <li><Link to='/'>Lorem ipsume dummy</Link></li>
+                        </ul>
+                   </div>
+                    <div className="col-md-3 why_brand">
+                        <h4>WHY (BRAND NAME)</h4>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, </p>
+                    </div>
+                    <div className="col-md-3 support">
+                        <h4>SUPPORT</h4>
+                        <p>If you have any questions regarding our products or services<Link to='/'> Just ask us</Link>  <i class="fa fa-angle-right"></i> Read here <Link to='/'>Frequently Asked Questions.</Link></p>
+                    </div>
+                    <div className="col-md-2 user_area">
+                        <h4>USER AREA</h4>
+                        <ul>
+						{!currentUser &&
+							<li><Link to='/login'>Your orders</Link></li>
+						}				
+						{currentUser &&
+							<li><Link to='/orders'>Your orders</Link></li>
+						}
+						{!currentUser &&
+                            <li><Link to='/login'>Your profile</Link></li>
+						}
+						{currentUser &&
+                            <li><Link to='/userprofile'>Your profile</Link></li>
+						}
+                        </ul>
+                    </div>
+                    <div className="copyRighrt">
+                        <hr />
+                        <p>Brand Name. All rights reserved. Copying and publishing without permition is forbidden.</p>
+                    </div>
+                </div>
+       
+    )
+	   }
+}
+export default Footer;
+
+

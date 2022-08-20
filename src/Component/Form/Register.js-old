@@ -1,0 +1,83 @@
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom';
+import logoimage from '../../images/logo-forms.png';
+import bgimage from '../../images/background-.jpg';
+import LeftSiderBar from '../SideBar/LeftSider/LeftSider'
+function Register() {
+
+    const [first_name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [Message, setMessage] = useState("");
+
+    let item = { first_name, password, email }
+    let handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            let res = await fetch("https://dev.demo-swapithub.com/ecomm/api/register", {
+                method: 'POST',
+                body: JSON.stringify(item),
+                headers: {
+                    "Content-Type": 'application/json',
+                    "Accept": 'application/json'
+                }
+            });
+            if (res.status === 200) {
+                setName("");
+                setEmail("");
+                setPassword("");
+                setMessage("User created successfully");
+            } else  {
+                setMessage("Some error occured");
+            }
+            // else  {
+            //     setMessage("this email is already");
+            // }
+            
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    return (
+	<div className="main-register main-forms container-fluid">
+	<div className="row register-row">
+	<LeftSiderBar />
+	<div className="col-md-10 register-col" >
+	<div className="background-image-form"  style={{background: `url(${bgimage})`,}}>
+		
+	<div className='form-common-main register-inner'>
+	<div className='register-logo'>
+	<img src={logoimage} /> 
+	
+	</div>
+	<h2 className="register-title">Register</h2>
+	
+	<form className='Register_from ' onSubmit={handleSubmit}>
+	<div className="mb-3 form-group">
+	<label className="form-label">Name</label>
+	<input value={first_name} onChange={(e) => setName(e.target.value)} class="form-control" />
+
+	</div>
+	<div className="mb-3 form-group">
+	<label className="form-label">Email Address</label>
+	<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} class="form-control" />
+
+	</div>
+	<div className="mb-3 form-group">
+	<label className="form-label">Password</label>
+	<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="form-control" />
+
+	</div>
+	<button className='btn btn-primary' type="submit">Submit</button>
+	<div className='mt-3 login-text'>You have already account this go<Link to="/Login" className="login-form-text"><span> Login page</span></Link></div>
+	<div className="message " >{Message ? <p>{Message}</p> : null}</div>
+	</form>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+    )
+}
+export default Register;

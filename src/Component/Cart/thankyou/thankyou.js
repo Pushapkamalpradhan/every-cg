@@ -1,0 +1,176 @@
+import React, { useState, Component } from "react";
+import axios from 'axios'
+import { Link } from "react-router-dom";
+//import SimpleReactValidator from "simple-react-validator";
+import LeftSiderBar from '../../../Component/SideBar/LeftSider/LeftSider'
+import { useCookies } from "react-cookie";
+import Cookies from 'universal-cookie';
+import { authenticationService } from '../../../Component/Form/_services';
+import bottom from '../../../images/images/bottom.png'
+import logo from '../../../images/images/logo.png'
+import top from '../../../images/images/top.png'
+import product from '../../../images/product.webp'
+import twitter2x from '../../../images/images/twitter2x.png'
+import linkedin2x from '../../../images/images/linkedin2x.png'
+import youtube2x from '../../../images/images/youtube2x.png'
+
+
+export default class Thankyou extends Component {
+  constructor() {
+    super();
+    this.state = {
+      users: null
+    }
+
+  }
+
+  componentDidMount() {
+    // let tokend = JSON.parse(localStorage.getItem('currentUser')).token;
+    let orderIds = JSON.parse(localStorage.getItem('orderIds'));
+    //  console.log("orderIds"+ orderIds);
+    /*    authenticationService.currentUser.subscribe(x => this.setState({
+         currentUser: x,
+       })); */
+    /* const headers = { 
+        "Content-Type": 'application/json'
+      // "Authorization": `Bearer ${tokend}`
+      
+      }; */
+      axios.get(`https://dev.demo-swapithub.com/ecomm/api/orders/${orderIds}`)
+      .then(response => this.setState({
+        orderid: response.data.order.id,
+        orderemail: response.data.order.email,
+        orderprice: response.data.order.subtotal,
+        orderfirst_name: response.data.order.first_name,
+        address1: response.data.order.address1,
+        address2: response.data.order.address2,
+        order_total: response.data.products,
+
+         total_price: response.data.products.total_price,
+        
+        // order_total: response.data.order.details,
+        // order_total: response.data.order.details,
+
+
+      }));
+    //console.log("hello"+ orderid);
+  }
+
+  render() {
+    const { orderid, orderemail,orderprice, orderfirst_name, address1, address2, order_total,total_price } = this.state;
+
+    //console.log("hello", total_price);
+    // console.log('orderData',orderData);
+    // const imagegallery = (setState);
+    //  console.log(imagegallery)
+    return (
+      <div className="container-fluid thankyou-page">
+         <div className="row thankyou-page">
+            <LeftSiderBar />
+            <div className="col-md-10 thankyou-col thankyou-inner width_int" >
+            <table className="thank_you" >
+                <thead>
+                  <tr>
+                    <th>
+                      <Link className="logo" to='/' tabindex="-1" target="_blank">
+                        <img alt="Logo" src={logo}
+                          title="Logo" width="267" />
+                      </Link>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+
+                      <h3 className="thank_you_title" >Thank you for your order!</h3>
+                      <p className="thank_you_inf">Your order is confirmed! Review your order information below.</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="pad" >
+                      <div align="center" className="alignment" >
+                        <img alt="Alternate text" className="bigimg"
+                          src={top} title="Alternate text" width="680" /></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table className="Product_table"  >
+                         <thead>
+                          <tr className="table_data_h">
+                            <th>
+                              No.
+                            </th>
+							<th>
+                              Order ID.
+                            </th>
+							 <th>
+                              SKU
+                            </th>
+                            <th>
+                              Product Name
+                            </th>
+							 <th>
+                              Product Image
+                            </th>
+                            <th>
+                              Quantity
+                            </th>
+                            <th>
+                              Price
+                            </th>
+                          </tr>
+                        </thead> 
+                        <tbody className="table_data_tbody" >
+                          {(order_total || []).map((order_totals,i) =>
+                            // <p>{order_totals.name}</p>
+                            <tr className="table_data_b" >
+							<td>
+                                {i+1}
+                              </td>
+							  <td>
+							  {order_totals.order_id}
+                              </td>
+							  <td>
+                                {order_totals.sku}
+                              </td>
+							<td>
+                                {order_totals.name}
+                              </td>
+                              <td className="table_data_images">
+                                {/* <img src={product} /> */}
+                                <img src={'https://dev.demo-swapithub.com/ecomm/' +  order_totals.image} alt={order_totals.name} /> 
+                              </td>
+                              
+                              <td>
+                                {order_totals.qty}
+                              </td>
+                              <th>
+                                ${order_totals.price}
+                              </th>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>                     
+                      <div className="Total_pr">Total:- ${orderprice}</div>					  
+                    </td>
+                  </tr>
+				   <tr>
+                    <td>                     
+                      <div className="button-shop-more"><Link to='/products'> <i class="fa fa-arrow-left"></i> Shop More</Link></div>					  
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        
+      </div>
+    );
+  }
+}

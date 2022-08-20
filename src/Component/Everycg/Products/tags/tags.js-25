@@ -1,0 +1,84 @@
+import React, { useEffect, useState, Router } from "react";
+import categorybanner from '../../../../images/category-banner.jpg'
+import axios from 'axios';
+import LeftSiderBar from '../../../SideBar/LeftSider/LeftSider'
+import { useHistory, Link, useLocation } from "react-router-dom";
+
+const tage = () => {
+   
+    const location = useLocation();
+    const [productlist, SetPost] = useState([]);
+    //const tagsNames = location.state.tagsName;
+	const tagname = location.state.tagId;
+    useEffect(() => {
+         fetch();
+    }, []);
+
+    const fetch = async () => {
+        try {
+            const { data } = await axios.get(`https://dev.demo-swapithub.com/ecomm/api/products/tag/${location.state.tagId}`);
+            console.log('data: ', data);
+            SetPost(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+   
+
+       useEffect(() => {
+        fetch();
+    }, []);
+    return (
+
+
+
+
+        <div className="container-fluid p-0 FeaturedProductsPage" >
+            <div className="card">
+                <div className="row m-0">
+                    <LeftSiderBar />
+                    <div className='col-md-10'>
+                        <div className='banner-sect-category-detail banner-sect-category' style={{ background: `url(${categorybanner})`, }}>
+                            <div className="breadcrumb"><Link to="/" >Home </Link> <span> > </span>{tagname}
+                            </div>
+                            <h2 className="cat-title">{tagname}</h2>
+                            <p className="content-category">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,</p>
+                        </div>
+                        <div className="row m-0">
+                            {(productlist || []).map((productlists) =>
+
+                                <div className="col-md-8 col-lg-6 col-xl-3 mt-3">
+                                    <div className="text-black featured_Products">
+                                        <div className='featured_Products_image card ' key={productlists._id}>
+                                            {/* <Link to={'/ProductShop/' + item.alias} className='Shop_now_page'> */}
+                                            <img src={'https://dev.demo-swapithub.com/ecomm/' + productlists.image} alt={productlists.name} />
+                                            {/* </Link> */}
+                                            <div className='Shop_now'>
+                                                <Link to={`/NewProductShop/${productlists.alias}`} className='Shop_now_page'>Shop Now </Link>
+                                            </div>
+                                            <div className='shop_price'>
+                                                <span >${productlists.price}</span>
+                                            </div>
+                                        </div>
+                                        <div className="card-body">
+                                            <div className="text-center">
+                                                <h5 className="card-title">{productlists.name}</h5>
+                                                <p className="text-muted"
+                                                    numberOfLines={2} ellipsizeMode='end'
+                                                    dangerouslySetInnerHTML={{ __html: productlists.content }} ></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default tage;
