@@ -42,7 +42,7 @@ export default class RegisterTest extends Component {
 					
 					if (response.status === 200) {
 						localStorage.setItem('currentUser', JSON.stringify(response.data.success));
-						//window.location = '/thank-you';
+						window.location = '/thank-you';
 						window.location = '/';
 					}
                 }).catch((error) => {
